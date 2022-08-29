@@ -11,7 +11,7 @@ export class ProductsService {
   constructor(
     @InjectModel(Product.name)
     private readonly productModal: Model<ProductDocument>,
-  ) {}
+  ) { }
 
   async insertProduct(productDto: Object, user: { userId: string }) {
     return await this.productModal.create({ ...productDto, user: user.userId });
@@ -48,7 +48,7 @@ export class ProductsService {
     return await this.productModal.findById(id).lean();
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   handleCron() {
     console.log('Virat Koli is going...');
   }

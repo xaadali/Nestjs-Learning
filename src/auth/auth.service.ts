@@ -16,6 +16,8 @@ import {
   PasswordResetDocument,
 } from 'src/DB/entities/passwordReset.schema';
 import { EmailHandlerService } from 'src/email-handler/email-handler.service';
+import { VerifyPinDto } from './dto/verify-pin.dto';
+import { NewPasswordDto } from './dto/new-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +28,7 @@ export class AuthService {
     @InjectModel(PasswordReset.name)
     private readonly PasswordResetModel: Model<PasswordResetDocument>,
     private readonly emailService: EmailHandlerService,
-  ) {}
+  ) { }
 
   async InsertNewUser(AuthCredentialsDto) {
     let { password } = AuthCredentialsDto;
@@ -128,6 +130,43 @@ export class AuthService {
     }
   }
 
+  async verifyPasswordResetPin(verifyPinParams: VerifyPinDto) {
+    try {
+      const { code } = verifyPinParams;
+      const dbCode = await this.PasswordResetModel.findOne({ code });
+      if (!dbCode) {
+        throw new NotFoundException('Invalid Code');
+      }
+      const user = await this.userModel.findOne({ email: dbCode.email });
+      const authToken = await this.getJwtToken(user);
+      await this.PasswordResetModel.deleteOne({ _id: dbCode._id });
+      return {
+        message: 'Code validated',
+        status: true,
+        authToken,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createNewPassword(newPasswordParams: NewPasswordDto, user) {
+    try {
+      const { password } = newPasswordParams;
+      const hashPassword = bcrypt.hashSync(password, 8);
+      console.log(user, "user")
+      await this.userModel.findOneAndUpdate(
+        { _id: user.userId },
+        { password: hashPassword },
+      );
+      return {
+        message: 'Password has been changed successfully. Login to continue',
+        status: true,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
   async getJwtToken(user: any, is2FaAuthenticated = false) {
     const payload: any = {
       userId: user.id,

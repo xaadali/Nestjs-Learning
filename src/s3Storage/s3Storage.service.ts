@@ -11,7 +11,7 @@ export class S3StorageService {
   constructor(
     @Inject('S3') private readonly S3: S3,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async uploadPublicFile(type: string, user: any, file: any) {
     console.log('user-----iiiii', user.userId);
@@ -24,7 +24,8 @@ export class S3StorageService {
 
     switch (type) {
       case FILE_TYPE.PRODUCT_IMAGE:
-        path = `users/${user.userId}/${FILE_TYPE.PRODUCT_IMAGE}`;
+        let Productkey = uuidv4();
+        path = `users/${user.userId}/${FILE_TYPE.PRODUCT_IMAGE}/${Productkey}`;
         break;
       case FILE_TYPE.PRIVACY_DOCUMENT:
         path = `general/${FILE_TYPE.PRIVACY_DOCUMENT}`;
@@ -32,31 +33,8 @@ export class S3StorageService {
       case FILE_TYPE.TERMS_CONDITIONS:
         path = `general/${FILE_TYPE.TERMS_CONDITIONS}`;
         break;
-      case FILE_TYPE.NATIVE_TOKENS:
-        let key = uuidv4();
-        path = `native-token/${FILE_TYPE.NATIVE_TOKENS}/${key}`;
-        break;
-      case FILE_TYPE.TOKEN_FONTS:
-        let key1 = uuidv4();
-        path = `token-fonts/${FILE_TYPE.TOKEN_FONTS}/${key1}`;
-        break;
       case FILE_TYPE.PROFILE_PICTURE:
         path = `users/${user._id}/${FILE_TYPE.PROFILE_PICTURE}`;
-        break;
-      case FILE_TYPE.CHATS:
-        let key2 = uuidv4();
-        path = `users/${user._id}/${FILE_TYPE.CHATS}/${key2}`;
-        break;
-
-      case FILE_TYPE.NFT_TOKENS:
-        let key3 = uuidv4();
-        path = `nftTokens/${FILE_TYPE.NFT_TOKENS}/${key3}`;
-        break;
-      case FILE_TYPE.DIRECT_WIRE:
-        let key4 = uuidv4();
-
-        path = `users/${user._id}/${FILE_TYPE.DIRECT_WIRE}/${key4}`;
-
         break;
 
       default:
